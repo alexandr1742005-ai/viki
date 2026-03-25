@@ -1,66 +1,59 @@
 const pre = document.getElementById('ascii-animation');
 
-let A = 0; // Угол вращения
-const textToSpin = " i love you"; // Текст на контуре
+let t = 0;
 
-function draw3DHeart() {
-    let z = new Array(1760).fill(0);
-    let b = new Array(1760).fill(" ");
-    
-    // Параметры для отрисовки (можно не трогать)
+function draw() {
+    // b - массив символов, z - буфер глубины
+    let b = [];
+    let z = [];
     const width = 80;
-    const height = 22;
+    const height = 24;
+    
+    // Очистка
+    for (let k = 0; k < width * height; k++) {
+        b[k] = k % width == width - 1 ? "\n" : " ";
+        z[k] = 0;
+    }
 
-    for (let j = 0; j < 6.28; j += 0.08) { // Глубина вращения
-        for (let i = 0; i < 6.28; i += 0.02) { // Контур
-            
-            let sin_i = Math.sin(i);
-            let cos_j = Math.cos(j);
-            let sin_A = Math.sin(A);
-            let sin_j = Math.sin(j);
-            let cos_A = Math.cos(A);
-            
-            // Формула тора, изогнутого в сердце
-            // 1. Рисуем круг (сечение тора)
-            let circle_x = cos_j + 2; 
-            
-            // 2. Применяем 3D вращение
-            let D = 1 / (sin_i * circle_x * sin_A + sin_j * cos_A + 5);
-            
-            let cos_i = Math.cos(i);
-            let cos_A_2 = Math.cos(A); // Вторая ось вращения (для объема)
-            let t = sin_i * circle_x * cos_A - sin_j * sin_A;
+    // Параметры вращения и пульсации
+    const s = Math.sin(t);
+    const c = Math.cos(t);
+    const pulse = Math.sin(t * 2) * 0.1 + 0.9; // Эффект биения
 
-            // 3. Рассчитываем финальные 2D координаты на экране
-            // (здесь магия, превращающая тор в сердце при вращении)
-            let x_coord = Math.floor(40 + 30 * D * (cos_i * circle_x * Math.cos(0) - t * Math.sin(0)));
-            // Немного сдвигаем Y, чтобы форма была ближе к сердцу
-            let y_coord = Math.floor(11 + 15 * D * (cos_i * circle_x * Math.sin(0) + t * Math.cos(0)));
-            let o = x_coord + width * y_coord;
+    // Проходим по точкам поверхности сердца
+    for (let i = 0; i < 6.28; i += 0.1) {      // угол 1
+        for (let j = 0; j < 6.28; j += 0.05) { // угол 2
             
-            // Проверка, что точка попадает в границы экрана
-            if (y_coord >= 0 && y_coord < height && x_coord >= 0 && x_coord < width && D > z[o]) {
-                z[o] = D;
-                
-                // Выбираем букву из фразы "i love you" в зависимости от угла контура 'i'
-                let charIndex = Math.floor(i * 2.5) % textToSpin.length;
-                b[o] = textToSpin[charIndex];
+            // Математическая формула 3D сердца
+            // Параметрические координаты
+            let r = Math.sin(j) * (Math.sqrt(Math.abs(Math.cos(j))) / (Math.sin(j) + 1.4) - 2 * Math.sin(j) + 2);
+            r *= pulse; // Применяем пульсацию
+
+            const x = r * Math.cos(i) * Math.sin(j);
+            const y = r * Math.cos(j);
+            const z_axis = r * Math.sin(i) * Math.sin(j);
+
+            // Вращение по осям
+            const x_rot = x * c - z_axis * s;
+            const z_rot = x * s + z_axis * c;
+
+            // Проекция на 2D экран
+            const ooz = 1 / (z_rot + 10); // Глубина
+            const xp = Math.floor(width / 2 + 40 * ooz * x_rot);
+            const yp = Math.floor(height / 2 - 20 * ooz * y);
+
+            const o = xp + width * yp;
+            if (yp >= 0 && yp < height && xp >= 0 && xp < width && ooz > z[o]) {
+                z[o] = ooz;
+                // Набор символов "i love you" для заполнения
+                const chars = "victoria ";
+                b[o] = chars[Math.floor(i * 1.5) % chars.length];
             }
         }
     }
-    
-    // Склеиваем массив символов в одну строку с переносами
-    let output = "";
-    for (let k = 0; k < 1760; k++) {
-        output += b[k];
-        if (k % width === width - 1) {
-            output += "\n";
-        }
-    }
-    
-    pre.textContent = output;
-    A += 0.04; // Скорость вращения
+
+    pre.textContent = b.join("");
+    t += 0.05; // Скорость вращения
 }
 
-// Запускаем анимацию 30 раз в секунду
-setInterval(draw3DHeart, 30);
+setInterval(draw, 40);
