@@ -43,3 +43,28 @@ body, html {
     display: inline-block;
     text-align: left;
 }
+body {
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+#ascii-animation {
+    color: #ff0000; /* Ярко-красный */
+    font-family: monospace;
+    font-size: 10px; /* Если будет маленькое, поставь 12px или 14px */
+    line-height: 8px; /* Плотность строк как на видео */
+    white-space: pre;
+    text-shadow: 0 0 5px #ff0000; /* Легкое свечение */
+}
+
+.message {
+    color: #ff0000;
+    font-family: sans-serif;
+    margin-top: 20px;
+}
