@@ -1,52 +1,41 @@
 const pre = document.getElementById('ascii-animation');
 
-let x = 0, y = 0;
+// Текст для анимации
+const text = "I LOVE YOU VICTORIA ";
+let frame = 0;
 
 function draw() {
-    let z = [];
-    let b = [];
-    // Очищаем массивы для нового кадра
-    for (let k = 0; k < 1760; k++) {
-        b[k] = k % 80 == 79 ? "\n" : " ";
-        z[k] = 0;
-    }
+    let output = "";
+    // Параметры размера
+    const width = 80;
+    const height = 30;
     
-    // Математика вращения тора/сердца
-    for (let j = 0; j < 6.28; j += 0.07) {
-        for (let i = 0; i < 6.28; i += 0.02) {
-            let c = Math.sin(i);
-            let d = Math.cos(j);
-            let e = Math.sin(x);
-            let f = Math.sin(j);
-            let g = Math.cos(x);
-            let h = d + 2;
-            let D = 1 / (c * h * e + f * g + 5);
-            let l = Math.cos(i);
-            let m = Math.cos(y);
-            let n = Math.sin(y);
-            let t = c * h * g - f * e;
+    // Коэффициент пульсации (сердце будет "дышать")
+    const pulse = Math.sin(frame * 0.1) * 0.2 + 0.9;
+
+    for (let y = 12; y > -12; y--) {
+        for (let x = -25; x < 25; x++) {
+            // Математическая формула идеального сердца
+            const xf = x * 0.05 / pulse;
+            const yf = y * 0.1 / pulse;
             
-            // Рассчитываем координаты символов на экране
-            let x_coord = Math.floor(40 + 30 * D * (l * h * m - t * n));
-            let y_coord = Math.floor(12 + 15 * D * (l * h * n + t * m));
-            let o = x_coord + 80 * y_coord;
-            
-            // Выбираем символ из фразы "i love you"
-            let chars = "i love you ";
-            let N = Math.floor(8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n));
-            
-            if (22 > y_coord && y_coord > 0 && x_coord > 0 && 80 > x_coord && D > z[o]) {
-                z[o] = D;
-                // Вместо яркости берем буквы по кругу
-                b[o] = chars[Math.floor(i * 1.5) % chars.length];
+            // Уравнение сердца
+            const formula = Math.pow(xf * xf + yf * yf - 1, 3) - xf * xf * Math.pow(yf, 3);
+
+            if (formula <= 0) {
+                // Если внутри сердца - берем букву из фразы
+                const charIndex = (Math.abs(x) + Math.abs(y) + frame) % text.length;
+                output += text[charIndex];
+            } else {
+                output += " ";
             }
         }
+        output += "\n";
     }
     
-    pre.textContent = b.join("");
-    x += 0.05; // Скорость вращения по одной оси
-    y += 0.03; // Скорость вращения по другой оси
+    pre.textContent = output;
+    frame++; 
 }
 
-// Запускаем отрисовку 30 раз в секунду
-setInterval(draw, 30);
+// Скорость кадров как на видео
+setInterval(draw, 50);
