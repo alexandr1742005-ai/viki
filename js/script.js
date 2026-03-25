@@ -1,99 +1,39 @@
-const asciiElement = document.getElementById('ascii-animation');
+const canvas = document.getElementById('ascii-animation');
 
-// Массив кадров для анимации. Каждый кадр - это строка.
-const frames = [
-  // Кадр 1
-  `
-         IIII I       OOOOOO   VVV  VVV EEEEEEE
-          II  I      OO    OO   VV  VV  EE
-          II  I      OO    OO    VVVV   EEEEE
-          II  I      OO    OO     VV    EE
-         IIII IIIIII  OOOOOO      VV    EEEEEEE
+// Текст, из которого будет состоять сердце
+const words = "I LOVE YOU VICTORIA ";
+let offset = 0;
 
-       YYYYYY OOOOOO  UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU
-         YY   OOOOOO   UUUUUU    *** *** ***
-  `,
-  // Кадр 2 (с небольшим сдвигом)
-  `
-         IIII I       OOOOOO   VVV  VVV EEEEEEE
-          II  I      OO    OO   VV  VV  EE
-          II  I      OO    OO    VVVV   EEEEE
-          II  I      OO    OO     VV    EE
-         IIII IIIIII  OOOOOO      VV    EEEEEEE
+function drawHeart() {
+    let output = "";
+    // Масштаб сердца (можно менять)
+    const scale = 13; 
+    
+    // Проходим по сетке координат Y и X
+    for (let y = 15; y > -15; y--) {
+        for (let x = -30; x < 30; x++) {
+            // Математическая формула сердца
+            // (x^2 + y^2 - 1)^3 - x^2 * y^3 <= 0
+            const xVal = x / scale;
+            const yVal = y / scale;
+            
+            const formula = Math.pow(xVal * xVal + yVal * yVal - 1, 3) - xVal * xVal * Math.pow(yVal, 3);
 
-       YYYYYY OOOOOO  UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU
-         YY   OOOOOO   UUUUUU    *** *** ***
-
-           I LOVE YOU  VICTORIA
-  `,
-    // Кадр 3 (еще сдвиг)
-  `
-         IIII I       OOOOOO   VVV  VVV EEEEEEE
-          II  I      OO    OO   VV  VV  EE
-          II  I      OO    OO    VVVV   EEEEE
-          II  I      OO    OO     VV    EE
-         IIII IIIIII  OOOOOO      VV    EEEEEEE
-
-       YYYYYY OOOOOO  UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU
-         YY   OOOOOO   UUUUUU    *** *** ***
-
-                  I LOVE YOU  VICTORIA
-  `,
-      // Кадр 4
-  `
-         IIII I       OOOOOO   VVV  VVV EEEEEEE
-          II  I      OO    OO   VV  VV  EE
-          II  I      OO    OO    VVVV   EEEEE
-          II  I      OO    OO     VV    EE
-         IIII IIIIII  OOOOOO      VV    EEEEEEE
-
-       YYYYYY OOOOOO  UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU
-         YY   OOOOOO   UUUUUU    *** *** ***
-
-                          I LOVE YOU  VICTORIA
-  `,
-        // Кадр 5
-  `
-         IIII I       OOOOOO   VVV  VVV EEEEEEE
-          II  I      OO    OO   VV  VV  EE
-          II  I      OO    OO    VVVV   EEEEE
-          II  I      OO    OO     VV    EE
-         IIII IIIIII  OOOOOO      VV    EEEEEEE
-
-       YYYYYY OOOOOO  UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU   !!!  !!!  !!!
-         YY  OO    OO UUU  UUU
-         YY   OOOOOO   UUUUUU    *** *** ***
-
-                                  I LOVE YOU  VICTORIA
-  `
-];
-
-let currentFrame = 0;
-
-function animate() {
-  // Выводим текущий кадр в HTML элемент
-  asciiElement.textContent = frames[currentFrame];
-
-  // Переходим к следующему кадру
-  currentFrame = (currentFrame + 1) % frames.length;
+            if (formula <= 0) {
+                // Если точка внутри сердца, берем букву из фразы
+                const charIndex = (Math.abs(x + y) + offset) % words.length;
+                output += words[charIndex];
+            } else {
+                // Если снаружи — пробел
+                output += " ";
+            }
+        }
+        output += "\n";
+    }
+    
+    canvas.textContent = output;
+    offset++; // Сдвигаем текст для эффекта бегущей строки
 }
 
-// Запускаем анимацию каждые 200 миллисекунд (можно менять скорость)
-setInterval(animate, 200);
-
-// Также выводим в консоль, как на видео
-console.log("%cДля Виктории <3", "color: red; font-size: 20px; font-weight: bold;");
+// Запуск анимации (скорость 100мс)
+setInterval(drawHeart, 100);
